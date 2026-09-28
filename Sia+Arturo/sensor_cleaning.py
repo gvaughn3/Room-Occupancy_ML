@@ -28,9 +28,15 @@ def add_datetime_column(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         A new DataFrame with an added "datetime" column.
     """
+    df = df.copy()
+    df["datetime"] = pd.to_datetime(df["Date"] + " " + df["Time"])
+    return df
 
 
 
 if __name__ == "__main__":
     # TODO: call load_sensor_data(), then add_datetime_column()
-    pass
+    df = load_sensor_data()
+    df = add_datetime_column(df)
+    print(df[["Date", "Time", "datetime"]].head())
+    print(df.dtypes["datetime"])
