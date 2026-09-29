@@ -27,6 +27,12 @@ def summarize_building_activity(df: pd.DataFrame) -> pd.DataFrame:
         active building is first.
     """
 
+    activity = df.groupby("building").agg(event_count=("client", "count"), distinct_clients=("client", "nunique"))
+
+    activity = activity.sort_values("event_count", ascending=False)
+
+    return activity
+
 def pick_focus_buildings(activity_summary: pd.DataFrame, n: int = 2) -> list:
         """
         TODO:
@@ -41,6 +47,8 @@ def pick_focus_buildings(activity_summary: pd.DataFrame, n: int = 2) -> list:
         Returns:
             A list of building numbers (strings), e.g. ["44", "48"]
         """
+
+        return activity_summary.head(n).index.tolist()
         
 if __name__ == "__main__":
     df = clean_table(CSV_PATH)
