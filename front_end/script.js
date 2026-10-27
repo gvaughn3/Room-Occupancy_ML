@@ -98,6 +98,10 @@ function addBuilding(building) {
 
 function openPanel(building) {
   panelName.textContent = building.name;
+  selectedBuilding = building;
+  selectedFloor = building.floors[0];
+  selectedDay = todayIndex();
+  selectedHour = currentHour();
   panel.hidden = false;
   map.invalidateSize();
   renderFloors(building);
@@ -110,26 +114,172 @@ function closePanel() {
 
 panelClose.addEventListener("click", closePanel);
 
-// TEMPORARY: fake predictions until the back end is connected
-function getCurrentOccupancy(building) {
-  const predictions = {};
-  for (const floor of building.floors) {
-    predictions[floor.id] = Math.round(Math.random() * 100);
+// ---- Fake occupancy data (TEMPORARY: replace with back end predictions) ----
+const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+const DAY_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const FIRST_HOUR = 8;   // 8 AM
+const LAST_HOUR = 22;   // 10 PM
+
+// Small seeded random generator so the fake numbers stay the same
+// for a given building/floor/day instead of changing on every click.
+function seededRandom(seedText) {
+  let h = 1779033703 ^ seedText.length;
+  for (let i = 0; i < seedText.length; i++) {
+    h = Math.imul(h ^ seedText.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
   }
-  return predictions;
+  let a = h >>> 0;
+  return function () {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
+
+// Returns { 8: 35, 9: 42, ... 22: 20 } for one floor on one day (0 = Monday)
+function getDayData(building, floor, dayIndex) {
+  const random = seededRandom(building.id + "-" + floor.id + "-" + dayIndex);
+  const weekend = dayIndex >= 5;
+  const peakHour = 12 + Math.floor(random() * 6);        // busiest around 12pm-5pm
+  const peakHeight = (weekend ? 40 : 65) + random() * 35;
+  const data = {};
+
+  for (let hour = FIRST_HOUR; hour <= LAST_HOUR; hour++) {
+    const distance = Math.abs(hour - peakHour);
+    const curve = Math.exp(-(distance * distance) / 24);
+    const noise = (random() - 0.5) * 20;
+    const value = peakHeight * curve + 8 + noise;
+    data[hour] = Math.max(2, Math.min(100, Math.round(value)));
+  }
+  return data;
+}
+
+function todayIndex() {
+  return (new Date().getDay() + 6) % 7;   // JS has Sunday = 0, we want Monday = 0
+}
+
+function currentHour() {
+  return Math.max(FIRST_HOUR, Math.min(LAST_HOUR, new Date().getHours()));
+}
+
+function formatHour(hour) {
+  const suffix = hour >= 12 ? "PM" : "AM";
+  const twelveHour = hour % 12 === 0 ? 12 : hour % 12;
+  return twelveHour + " " + suffix;
+}
+
+function busyLabel(percent) {
+  if (percent < 25) return "Not busy";
+  if (percent < 50) return "A little busy";
+  if (percent < 75) return "Busy";
+  return "Very busy";
+}
+
+// ---- Side panel state ----
+let selectedBuilding = null;
+let selectedFloor = null;
+let selectedDay = todayIndex();
+let selectedHour = currentHour();
 
 function renderFloors(building) {
   panelFloors.textContent = "";
 
-  const predictions = getCurrentOccupancy(building);
+  // Floor picker (shows the current occupancy for each floor)
+  const floorList = document.createElement("div");
+  floorList.className = "floor-list";
 
   for (const floor of building.floors) {
-    const percent = predictions[floor.id];
-    const row = document.createElement("p");
-    row.textContent = floor.label + ": " + percent + "% full";
-    panelFloors.appendChild(row);
+    const percent = getDayData(building, floor, todayIndex())[currentHour()];
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "floor-button" + (floor === selectedFloor ? " active" : "");
+    button.textContent = floor.label + ": " + percent + "% full";
+    button.addEventListener("click", function () {
+      selectedFloor = floor;
+      renderFloors(building);
+    });
+    floorList.appendChild(button);
   }
+  panelFloors.appendChild(floorList);
+
+  panelFloors.appendChild(buildChart(building, selectedFloor));
+}
+
+function buildChart(building, floor) {
+  const data = getDayData(building, floor, selectedDay);
+  const isToday = selectedDay === todayIndex();
+  const nowHour = currentHour();
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "popular-times";
+
+  const title = document.createElement("h3");
+  title.textContent = "Popular times: " + floor.label;
+  wrapper.appendChild(title);
+
+  // Day tabs
+  const tabs = document.createElement("div");
+  tabs.className = "day-tabs";
+  DAYS.forEach(function (dayLabel, index) {
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "day-tab" + (index === selectedDay ? " active" : "");
+    tab.textContent = dayLabel;
+    tab.addEventListener("click", function () {
+      selectedDay = index;
+      // Default to the current hour on today, noon on other days
+      selectedHour = index === todayIndex() ? currentHour() : 12;
+      renderFloors(building);
+    });
+    tabs.appendChild(tab);
+  });
+  wrapper.appendChild(tabs);
+
+  // Message above the chart
+  const message = document.createElement("div");
+  message.className = "chart-message";
+  const percent = data[selectedHour];
+  const verb = isToday && selectedHour === nowHour ? "Currently" : "Predicted";
+  message.innerHTML =
+    "<strong>" + verb + " " + percent + "% occupancy at " + formatHour(selectedHour) + "</strong>" +
+    "<span>" + busyLabel(percent) + " · " + DAY_NAMES[selectedDay] + "</span>";
+  wrapper.appendChild(message);
+
+  // Bars
+  const chart = document.createElement("div");
+  chart.className = "chart";
+
+  for (let hour = FIRST_HOUR; hour <= LAST_HOUR; hour++) {
+    const bar = document.createElement("button");
+    bar.type = "button";
+    bar.className = "bar";
+    if (hour === selectedHour) bar.classList.add("selected");
+    else if (isToday && hour === nowHour) bar.classList.add("now");
+    bar.style.height = data[hour] + "%";
+    bar.setAttribute("aria-label", data[hour] + "% at " + formatHour(hour));
+    bar.addEventListener("click", function () {
+      selectedHour = hour;
+      renderFloors(building);
+    });
+    chart.appendChild(bar);
+  }
+  wrapper.appendChild(chart);
+
+  // Hour labels every 3 hours
+  const axis = document.createElement("div");
+  axis.className = "chart-axis";
+  for (let hour = FIRST_HOUR; hour <= LAST_HOUR; hour++) {
+    const label = document.createElement("span");
+    if ((hour - FIRST_HOUR) % 3 === 0) {
+      label.textContent = formatHour(hour).replace(" ", "").toLowerCase().replace("m", "");
+    }
+    axis.appendChild(label);
+  }
+  wrapper.appendChild(axis);
+
+  return wrapper;
 }
 
 // ---- Add every building to the map ----
@@ -141,4 +291,3 @@ for (const building of buildings) {
 map.on("click", function (event) {
   console.log(event.latlng);
 });
-
