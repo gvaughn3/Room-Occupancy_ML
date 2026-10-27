@@ -18,3 +18,122 @@ body {
   width: 320px;
 }
 
+
+#panel {
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.floor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.floor-button {
+  text-align: left;
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+}
+
+.floor-button.active {
+  border-color: #1a73e8;
+  background: #e8f0fe;
+}
+
+/* ---- Popular times chart ---- */
+.popular-times h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.day-tabs {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.day-tab {
+  border: none;
+  background: none;
+  padding: 6px 2px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5f6368;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+}
+
+.day-tab.active {
+  color: #1a73e8;
+  border-bottom-color: #1a73e8;
+}
+
+.chart-message {
+  min-height: 2.6em;
+  text-align: center;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.chart-message span {
+  display: block;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #5f6368;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  border-bottom: 1px solid #999;
+  background:
+    linear-gradient(#ddd, #ddd) 0 0 / 100% 1px no-repeat,
+    linear-gradient(#ddd, #ddd) 0 33% / 100% 1px no-repeat,
+    linear-gradient(#ddd, #ddd) 0 66% / 100% 1px no-repeat;
+}
+
+.bar {
+  flex: 1;
+  padding: 0;
+  border: none;
+  border-radius: 3px 3px 0 0;
+  background: #9aa0a6;
+  cursor: pointer;
+  min-height: 3px;
+}
+
+.bar:hover {
+  background: #70757a;
+}
+
+.bar.now {
+  background: #d9776f;
+}
+
+.bar.selected {
+  background: #4285f4;
+}
+
+.chart-axis {
+  display: flex;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.chart-axis span {
+  flex: 1;
+  font-size: 0.7rem;
+  color: #5f6368;
+  white-space: nowrap;
+  overflow: visible;
+  text-align: center;
+}
