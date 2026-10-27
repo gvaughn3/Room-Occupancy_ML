@@ -61,7 +61,7 @@ const buildings = [
     name: "Belk Gym",
     floors: [
       { id: "G", label: "Ground Floor"},
-      { id: "2", label: "Floor 2"},
+      { id: "2", label: "Floor 2"}
     ],
     corners: [
       [1046, 768],
@@ -72,6 +72,133 @@ const buildings = [
       [1289, 773],
       [1284, 926],
       [1043, 920]
+    ]
+  },
+
+  {
+    id: "96",
+    name: "REC Center",
+    floors: [
+      { id: "1", label: "Floor 1"},
+      { id: "2", label: "Floor 2"},
+      { id: "G", label: "Ground Floor"},
+      { id: "4", label: "Floor 4"},
+      { id: "5", label: "Floor 5"}
+    ],
+    corners: [
+      [2125, 772],
+      [2126, 1005],
+      [2113, 1030],
+      [2100, 1117],
+      [2069, 1150],
+      [2022, 1144],
+      [1998, 1090],
+      [2020, 1016],
+      [2012, 1004],
+      [2016, 773]
+    ]
+  },
+
+  {
+    id: "69",
+    name: "Student Union",
+    floors: [
+      { id: "LL", label: "Lower Level"},
+      { id: "1", label: "Floor 1"},
+      { id: "M", label: "Mezzanine Level"},
+      { id: "2", label: "Floor 2"},
+      { id: "3", label: "Floor 3"}
+    ],
+    corners: [
+      [2217, 1187],
+      [2277, 1258],
+      [2274, 1406],
+      [2206, 1407],
+      [2124, 1491],
+      [2044, 1407],
+      [2076, 1376],
+      [2080, 1278],
+      [2045, 1246],
+      [2128, 1164],
+      [2173, 1221]
+    ]
+  },
+
+  {
+    id: "05",
+    name: "Cone center",
+    floors: [
+      { id: "G", label: "Ground Floor"},
+      { id: "2", label: "Floor 2"},
+      { id: "3", label: "Floor 3"}
+    ],
+    corners: [
+    [1226, 1368],
+    [1225, 1536],
+    [1083, 1531],
+    [1081, 1441],
+    [995, 1439],
+    [989, 1509],
+    [923, 1513],
+    [933, 1349],
+    [1064, 1352],
+    [1064, 1414],
+    [1082, 1415],
+    [1088, 1368]
+    ]
+  },
+
+  {
+    id: "34",
+    name: "Prospector",
+    floors: [
+      { id: "G", label: "Ground Floor"},
+      { id: "2", label: "Floor 2"}
+    ],
+    corners: [
+    [1705, 1982],
+    [1700, 2085],
+    [1482, 2086],
+    [1487, 1968]
+    ]
+  },
+
+  {
+    id: "82",
+    name: "South Village Crossing",
+    floors: [
+      { id: "G", label: "Ground Floor"},
+      { id: "2", label: "Floor 2"}
+    ],
+    corners: [
+    [416, 923],
+    [473, 1035],
+    [367, 1105],
+    [342, 1064],
+    [291, 1095],
+    [256, 1041],
+    [269, 976],
+    [328, 937],
+    [348, 970]
+    ]
+  },
+
+  {
+    id: "56",
+    name: "Woodward Hall",
+    floors: [
+      { id: "G", label: "Ground Floor"},
+      { id: "2", label: "Floor 2"},
+      { id: "3", label: "Floor 3"},
+      { id: "4", label: "Floor 4"}
+    ],
+    corners: [
+    [1878, 774],
+    [1868, 1083],
+    [1780, 1073],
+    [1779, 851],
+    [1606, 857],
+    [1610, 758]
     ]
   }
 
