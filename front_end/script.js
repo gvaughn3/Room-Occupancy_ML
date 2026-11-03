@@ -2,10 +2,10 @@
 const imageWidth = 2746;
 const imageHeight = 2583;
 
-const normalStyle = { color: "green", opacity: 0.4, fillOpacity: 0.15 };
-const hoverStyle = { color: "green", opacity: 1, fillOpacity: 0.5 };
+const normalStyle = { color: "#005035", weight: 2, opacity: 0.6, fillColor: "#005035", fillOpacity: 0.18 };
+const hoverStyle = { color: "#005035", weight: 3, opacity: 1, fillColor: "#a49665", fillOpacity: 0.45 };
 
-const map = L.map("map", { crs: L.CRS.Simple, minZoom: -2 });
+const map = L.map("map", { crs: L.CRS.Simple, minZoom: -2, zoomSnap: 0.1 });
 const bounds = [[0, 0], [imageHeight, imageWidth]];
 
 const panel = document.getElementById("panel");
@@ -15,6 +15,8 @@ const panelFloors = document.getElementById("panel-floors");
 
 L.imageOverlay("campus-map.png", bounds).addTo(map);
 map.fitBounds(bounds);
+// Zoom in so the map image fills the whole box (no empty bands)
+map.setView(map.getCenter(), map.getBoundsZoom(bounds, true));
 
 // ---- Building data ----
 const buildings = [
@@ -205,15 +207,32 @@ const buildings = [
 ];
 
 // ---- Draw one building and give it hover behavior ----
+function busyColor(percent) {
+  if (percent < 50) return "#2e8b57";   // green
+  if (percent < 75) return "#d9a520";   // yellow
+  return "#c8553d";                     // red
+}
+
+function buildingPercentNow(building) {
+  let total = 0;
+  for (const floor of building.floors) {
+    total += getDayData(building, floor, todayIndex())[currentHour()];
+  }
+  return Math.round(total / building.floors.length);
+}
+
 function addBuilding(building) {
-  const shape = L.polygon(building.corners, normalStyle).addTo(map);
+  const color = busyColor(buildingPercentNow(building));
+  const style = { color: color, weight: 2, opacity: 0.9, fillColor: color, fillOpacity: 0.55 };
+  const hover = { color: color, weight: 3, opacity: 1, fillColor: color, fillOpacity: 0.8 };
+  const shape = L.polygon(building.corners, style).addTo(map);
 
   shape.on("mouseover", function () {
-    shape.setStyle(hoverStyle);
+    shape.setStyle(hover);
   });
 
   shape.on("mouseout", function () {
-    shape.setStyle(normalStyle);
+    shape.setStyle(style);
   });
 
   shape.bindTooltip(building.name);
@@ -322,7 +341,12 @@ function renderFloors(building) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "floor-button" + (floor === selectedFloor ? " active" : "");
-    button.textContent = floor.label + ": " + percent + "% full";
+    const name = document.createElement("span");
+    name.textContent = floor.label;
+    const badge = document.createElement("span");
+    badge.className = "badge " + (percent < 50 ? "low" : percent < 75 ? "mid" : "high");
+    badge.textContent = percent + "%";
+    button.append(name, badge);
     button.addEventListener("click", function () {
       selectedFloor = floor;
       renderFloors(building);
