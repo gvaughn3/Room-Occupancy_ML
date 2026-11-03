@@ -3,10 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <title>Campus Occupancy | UNC Charlotte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <!-- Our styles load after Leaflet so they can override it -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+  <header class="site-header">
+    <div class="brand">
+      <div class="brand-mark">49</div>
+      <div>
+        <h1>Campus Occupancy</h1>
+        <p>UNC Charlotte · Click a building to see how busy it is</p>
+      </div>
+    </div>
+    <div class="legend">
+      <span><i class="key-low"></i>Not busy</span>
+      <span><i class="key-mid"></i>Busy</span>
+      <span><i class="key-high"></i>Very busy</span>
+    </div>
+  </header>
 
   <div id="layout">
     <div id="map"></div>
@@ -15,6 +35,12 @@
       <button id="panel-close">Close</button>
       <h2 id="panel-name"></h2>
       <div id="panel-floors"></div>
+    </aside>
+
+    <aside id="empty-state">
+      <div class="empty-icon">⌖</div>
+      <h2>Pick a building</h2>
+      <p>Click any colored building on the map to see how full each floor is and when it is least busy.</p>
     </aside>
   </div>
 
